@@ -9,7 +9,7 @@ CONTROL PLANE
 7. Scheduler
 ---------------------------------------
 
-NODES
+WORKER NODES
 ---------------------------------------
 1. Kubelet
 2. k-proxy
