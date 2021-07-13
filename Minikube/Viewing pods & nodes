@@ -1,0 +1,12 @@
+# list existing pods in a cluster
+kubectl get pods
+
+# Get details about lsited pod(s)
+kubectl describe pods
+
+# Show the app in a terminal using the kube proxy:
+echo -e "\n\n\n\e[92mStarting Proxy. After starting it will not output a response. Please click the first Terminal Tab\n"; 
+kubectl proxy
+export POD_NAME=$(kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
+echo Name of the Pod: $POD_NAME
+curl http://localhost:8001/api/v1/namespaces/default/pods/$POD_NAME/proxy/
