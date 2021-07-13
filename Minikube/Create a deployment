@@ -1,0 +1,29 @@
+# Perform Kubernetes Checks:
+kubectl version
+kubectl cluster-info
+kubectl get nodes
+
+# Create a deployment using a custom ubuntu image from my docker repo:
+kubectl create deployment kubernetes-dep-test1 --image=docker.io/gho7004230/ubuntu:v1
+
+# Verify deployment
+kubectl get deployments
+(expected output)
+--------------------------------------------------------------------------
+NAME                      READY       UP-TO-DATE      AVAILABLE     AGE
+kubernetes-dep-test1      1/1         1               1             2m37s
+--------------------------------------------------------------------------
+
+# Start kube proxy:
+echo -e "\n\n\n\e[92mStarting Proxy. After starting it will not output a response. Please click the first Terminal Tab\n"; 
+kubectl proxy
+
+# Test proxy connection using curl:
+curl http://localhost:8001/version
+
+#Get the POD name & store in an ENV Variable:
+export POD_NAME=$(kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
+echo Name of the Pod: $POD_NAME
+
+# Access the POD via the ENV Variable through an API:
+curl http://localhost:8001/api/v1/namespaces/default/pods/$POD_NAME/
