@@ -11,7 +11,7 @@ kubernetes      ClusterIP     10.96.0.1       <none>          443/TCP   86s
 # Service called kubernetes that is created by default when minikube starts the cluster. 
 # To create a new service and expose it to external traffic, use the 'expose' command with "NodePort" as parameter
 # Command:
-kubectl expose kubernetes-test1 --type="NodePort" --port 8080
+kubectl expose deployment/kubernetes-test1 --type="NodePort" --port 8080
 
 # Verify exposed service:
 kubectl get services
