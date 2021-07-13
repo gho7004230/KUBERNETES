@@ -1,0 +1,47 @@
+# List current pod(s)
+kubectl get pods
+
+# List services inside cluster
+kubectl get services
+(expected output)
+----------------------------------------------------------------------------
+NAME            TYPE          CLUSTER-IP      EXTERNAL-IP     PORT(S)   AGE
+kubernetes      ClusterIP     10.96.0.1       <none>          443/TCP   86s
+----------------------------------------------------------------------------
+# Service called kubernetes that is created by default when minikube starts the cluster. 
+# To create a new service and expose it to external traffic, use the 'expose' command with "NodePort" as parameter
+# Command:
+kubectl expose kubernetes-test1 --type="NodePort" --port 8080
+
+# Verify exposed service:
+kubectl get services
+kubectl describe services/kubernetes-test1
+
+# Create an environment variable called NODE_PORT that has the value of the Node port assigned:
+export NODE_PORT=$(kubectl get services/kubernetes-bootcamp -o go-template='{{(index .spec.ports 0).nodePort}}')
+echo NODE_PORT=$NODE_PORT
+
+# Test app's exposed port:
+curl $(minikube ip):$NODE_PORT
+
+# Label the deployment:
+kubectl describe deployment
+
+# Use label to get pod info:
+kubectl get pods -l app=kubernetes-test1
+
+# Use label to get service info:
+kubectl get services -l app=kubernetes-test1
+
+# Get POD name and store in ENV Variable:
+export POD_NAME=$(kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}')
+echo Name of the Pod: $POD_NAME
+
+# Use Pod ENV Variable to label pod:
+kubectl label pods $POD_NAME version=v1
+
+# Verify label:
+kubectl describe pods $POD_NAME
+
+# Query the list of pods using the new label:
+kubectl get pods -l version=v1
