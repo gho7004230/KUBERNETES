@@ -1,0 +1,32 @@
+# Create a deployment and replicaset of 4 pods:
+kubectl apply -f http-load-balancer.yml
+
+# Disply info about the deployment:
+kubectl get deployments httpd
+kubectl describe deployments httpd
+
+# Display info about replicasets
+kubectl get rs
+kubectl describe rs
+
+# Create a service obeject that exposes the deployment:
+kubectl expose deployment httpd --type=LoadBalancer --name=my-httpd
+kubectl get services my-httpd
+(expected output)
+---------------------------------------------------------------------------
+NAME         TYPE           CLUSTER-IP     EXTERNAL-IP      PORT(S)    AGE
+my-httpd     LoadBalancer   10.3.245.137   104.198.205.71   8080/TCP   54s
+---------------------------------------------------------------------------
+
+# Get addtional info about service:
+kubectl describe services my-httpd
+
+# View replica sets and thier IPs:
+kubectl get pods --output=wide
+
+# Access exposed application:
+curl http://104.198.205.71:8080
+
+# Delete httpd service & deployment:
+kubectl delete services my-httpd
+kubectl delete deployment httpd
