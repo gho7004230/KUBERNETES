@@ -1,0 +1,4 @@
+Objectives:
+Run 4 instances of a httpd application.
+Create a Service object that exposes an external IP address.
+Use the Service object to access the running application.
