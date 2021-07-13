@@ -1,0 +1,48 @@
+# Updating an application:
+
+# FIrst, verify Kubernetes is up and running:
+kubectl version
+kubectl cluster-info
+kubectl get nodes
+kubectl get pods
+kubectl get deployments
+kubectl get services
+kubectl get rs
+
+# Get verbose pod info
+kubectl describe pods
+(find the image field & take note of it)
+
+# update the image with a new image version:
+kubectl set image deployments/kubernetes-test1 kubernetes-test1=gho7004230/ubuntu:v2
+
+# Verify
+kubectl get pods
+kubectl describe services/kubernetes-test1
+
+# Create an environment variable called NODE_PORT that has the value of the Node port assigned:
+export NODE_PORT=$(kubectl get services/kubernetes-bootcamp -o go-template='{{(index .spec.ports 0).nodePort}}')
+echo NODE_PORT=$NODE_PORT
+
+# Curl the exposed port:
+curl $(minikube ip_:$NODE_PORT
+
+# Confirm rolling update:
+kubectl rollout status deployments/kubernetes-test1
+
+# Confirm current image tied to deployment:
+kubectl describe pods
+
+# Rollback an update:
+---------------------------------------------------------------------------------------------------
+# Update an image:
+kubectl set image deployments/kubernetes-test1 kubernetes-test1=docker.io/gho7004230/ubuntu:latest
+
+# Rollback update:
+kubectl rollout undo deployments/kubernetes-test1
+(The rollout undo command reverts the deployment to the previous known state)
+
+# Verify:
+kubectl get pods
+kubectl describe pods
+
