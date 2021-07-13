@@ -1,0 +1,36 @@
+# Installing Minikube on Linux:
+# Requirements:
+2 CPUs or more
+2GB of free memory
+20GB of free disk space
+Internet connection
+Container or virtual machine manager: Docker, Hyperkit, Hyper-V, Podman, VirtualBox, or VMWare
+
+# Use curl:
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+sudo install minikube-linux-amd64 /usr/local/bin/minikube
+
+# Verify minikube version:
+minikube version
+
+# Next, Start the cluster:
+minikube start
+
+# Install klubectl:
+minikube kubectl -- get po -A
+
+# Verify kubectl:
+kubectl version
+
+# Access new cluster:
+kubectl get po -A
+
+# Access Dashboard:
+minikube dashboard
+
+# Get cluster details:
+kubectl cluster-info
+
+# Get node details:
+kubectl get nodes
+
