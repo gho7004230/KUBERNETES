@@ -1,0 +1,19 @@
+Install on Linux:
+Sourced from: https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/
+
+# Start with kubectl
+# Download the latest release:
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+
+# Validate the binary file with the checksumL
+curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+echo "$(<kubectl.sha256) kubectl" | sha256sum --check
+(Expected output:)
+kubectl: OK
+
+# Install kubectl binary:
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+# Test Installation & check version:
+kubectl version --client
+
