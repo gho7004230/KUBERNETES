@@ -1,6 +1,6 @@
 # Updating an application:
 
-# FIrst, verify Kubernetes is up and running:
+# First, verify Kubernetes is up and running:
 kubectl version
 kubectl cluster-info
 kubectl get nodes
