@@ -45,3 +45,17 @@ kubectl describe pods $POD_NAME
 
 # Query the list of pods using the new label:
 kubectl get pods -l version=v1
+
+# Delete a service using the label:
+kubectl delete service -l app=kubernetes-test1
+
+# Verify:
+kubectl get services
+
+# Confirm that route is not exposed to service:
+curl $(minikube ip):NODE_PORT
+
+# Confirm that app is still reachable on an internal ip via an interactive session:
+kubectl exec -it $POD_NAME -- curl localhost:8080
+
+
