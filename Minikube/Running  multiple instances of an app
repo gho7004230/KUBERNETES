@@ -1,0 +1,54 @@
+# Scaling a Deployment
+
+# Start by verifying Kubernetes is up:
+kubectl version
+kubectl cluster-info
+kubectl get nodes
+kubectl get pods
+kubectl get deployments
+kubectl get services
+
+# View replica sets of deployment:
+kubectl get rs
+
+# Scale the deployment replica set from 1 to 4 replicas:
+kubectl scale deployments/kubernetes-test1 --replicas=4
+
+# Verify:
+kubectl get rs
+(expected output)
+------------------------------------------------------
+NAME                DESIRED   CURRENT  READY     AGE
+kubernetes-test1    4         4        4         5m9s
+------------------------------------------------------
+
+kubectl get deployments
+(same output)
+
+# View registered replicas with thier associated IPs:
+kubectl get pods -o wide
+
+# Get verbose details on replicas:
+kubectl describe deployments/kubernetes-test1
+
+# Get verbose details on replica services:
+kubectl describe services/kubernetes-test1
+
+# Create an environment variable called NODE_PORT that has a value as the Node port:
+export NODE_PORT=$(kubectl get services/kubernetes-bootcamp -o go-template='{{(index .spec.ports 0).nodePort}}')
+echo NODE_PORT=$NODE_PORT
+
+# Do a curl to the exposed IP and port. Execute the command multiple times:
+curl $(minikube ip):$NODE_PORT
+# (Every hit is on a different Pod with every request. This demonstrates that the load-balancing is working.)
+
+# Scale down deployment from 4 to 2 replicas, then verify:
+kubectl scale deployments/kubernetes-test1 --replicas=2
+kubectl get deployments
+(expected output)
+------------------------------------------------------
+NAME                DESIRED   CURRENT  READY     AGE
+kubernetes-test1    2         2        2         5m9s
+------------------------------------------------------
+kubectl get pods -o wide
+
