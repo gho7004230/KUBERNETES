@@ -35,7 +35,7 @@ kubectl describe deployments/kubernetes-test1
 kubectl describe services/kubernetes-test1
 
 # Create an environment variable called NODE_PORT that has a value as the Node port:
-export NODE_PORT=$(kubectl get services/kubernetes-bootcamp -o go-template='{{(index .spec.ports 0).nodePort}}')
+export NODE_PORT=$(kubectl get services/kubernetes-test1 -o go-template='{{(index .spec.ports 0).nodePort}}')
 echo NODE_PORT=$NODE_PORT
 
 # Do a curl to the exposed IP and port. Execute the command multiple times:
