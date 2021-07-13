@@ -1,0 +1,26 @@
+Guides can be found here at:
+https://docs.aws.amazon.com/eks/index.html
+
+User guides: 
+https://docs.aws.amazon.com/eks/latest/userguide/what-is-eks.html
+
+API References:
+https://docs.aws.amazon.com/eks/latest/APIReference/Welcome.html
+
+CLI References:
+https://docs.aws.amazon.com/cli/latest/reference/eks/index.html
+
+EKS Workshop (for AWS Subscribers Only):
+https://www.eksworkshop.com/
+
+EKS CDK References:
+https://docs.aws.amazon.com/cdk/api/latest/docs/aws-eks-readme.html
+
+EKS Web Console:
+https://us-east-2.console.aws.amazon.com/eks/home?region=us-east-2#/home
+
+ECS Web Console: 
+https://us-east-2.console.aws.amazon.com/ecs/home?region=us-east-2#/getStarted
+
+ECR Web Console:
+https://us-east-2.console.aws.amazon.com/ecr/get-started?region=us-east-2
