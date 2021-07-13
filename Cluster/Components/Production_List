@@ -1,0 +1,15 @@
+CONTROL PLANE
+---------------------------------------
+1. API Server
+2. Cloud Controller Manager (Optional)
+3. Controller Manager
+4. etcd (Persistence store)
+5. kubelet
+6. kube-proxy
+7. Scheduler
+---------------------------------------
+
+NODES
+---------------------------------------
+1. Kubelet
+2. k-proxy
