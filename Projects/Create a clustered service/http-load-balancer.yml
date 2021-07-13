@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: http-load-balancer
+  name: httpd
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: http-load-balancer
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: http-load-balancer
+    spec:
+      containers:
+      - image: docker.io/gho7004230/httpd:v1
+        name: httpd
+        ports: 80
+        - containerPort: 8080
