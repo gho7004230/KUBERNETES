@@ -1,0 +1,88 @@
+# Step by step playbook to install Docker & Kubernetes on a single Ubuntu VM, then deploy Apache service & scale with load balancing
+
+1. Install Ubuntu 20.04 Desktop LTS (Minimal Install)
+   - For a high performance VM:
+   - 100 GB HDD (500 MB boot, 500 MB Swap, Remaining /)
+   - 16 GB RAM
+   - 2 CPU & 2 Cores
+   
+2. Run update command: 
+sudo apt-get update && apt-get upgrade -y
+
+3. Install addtional packages:
+   - docker.io
+   - docker-compose
+   - net-tools
+   - curl
+   - conntrack
+   
+4. Enable Docker: 
+sudo systemctl enable docker
+
+5. Start Docker: 
+sudo systemctl start docker
+
+6. Add local user to docker group: 
+usermod -aG docker {local admin}
+
+7. Download Minikube: 
+sudo curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+
+8. Install Minikube:  
+sudo install minikube-linux-amd64 /usr/local/bin/minikube
+
+9. Verify Install: 
+sudo minikube version
+
+10. Start Kubernetes Cluster: 
+sudo minikube start --driver=none
+
+11. Download Kubectl tool:
+sudo curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+
+12. Install Kubectl:
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+13. Verify Install:
+sudo kubectl version
+
+14. Run kubectl command to ensure that it can talk to the cluster:
+sudo kubectl get po -A
+
+15. Pull the profile list:
+sudo minikube profile list
+(expected output)
+|----------|-----------|---------|----------------|------|---------|---------|-------|
+| Profile  | VM Driver | Runtime |       IP       | Port | Version | Status  | Nodes |
+|----------|-----------|---------|----------------|------|---------|---------|-------|
+| minikube | none      | docker  | 192.168.47.136 | 8443 | v1.21.2 | Running |     1 |
+|----------|-----------|---------|----------------|------|---------|---------|-------|
+
+16. Start minikube dashboard:
+sudo minukube dashboard
+(access dashboard at: http://127.0.0.1:39557/api/v1/namespaces/kubernetes-dashboard/services/http:kubernetes-dashboard:/proxy/)
+
+17. Create a new deployment:
+sudo kubectl create deployment apache --image=docker.io/gho7004230/centos-webserver:v1
+
+18. Create service:
+sudo kubectl expose deployment/apache --port=80 --external-ip=192.168.47.136 --type="NodePort"
+
+19. Verify service:
+sudo kubectl get services
+(You can go view the service at http://192.168.47.136:{external port}
+
+20. Scale service from 1 pod to 4:
+sudo kubectl scale deployments/apache --replicas=4
+
+21. Verify scaled deployment:
+sudo kubectl get rs
+sudo kubectl get pods -o wide
+(expected output:)
+NAME                      READY   STATUS    RESTARTS   AGE   IP           NODE          NOMINATED NODE   READINESS GATES
+apache-549dff588b-j4822   1/1     Running   0          49m   172.17.0.7   kubernetes1   <none>           <none>
+apache-549dff588b-pzbrb   1/1     Running   0          49m   172.17.0.8   kubernetes1   <none>           <none>
+apache-549dff588b-v826z   1/1     Running   0          49m   172.17.0.6   kubernetes1   <none>           <none>
+apache-549dff588b-wh9lk   1/1     Running   0          51m   172.17.0.5   kubernetes1   <none>           <none>
+
+# Congrats! You have successfully deployed an Apache webserver and load balanced in on 4 nodes using kubernetes! 
