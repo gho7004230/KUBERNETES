@@ -1,6 +1,6 @@
 # Step by step playbook to install Docker & Kubernetes on a single Ubuntu VM, then deploy Apache service & scale with load balancing
 
-1. Install Ubuntu 20.04 Desktop LTS (Minimal Install)
+1. Install Ubuntu 20.04 Desktop LTS (Minimal Install) on VMWare Workstation or Virtualbox or other Type II Hypervisor
    - For a high performance VM:
    - 100 GB HDD (500 MB boot, 500 MB Swap, Remaining /)
    - 16 GB RAM
@@ -55,7 +55,7 @@ sudo minikube profile list
 |----------|-----------|---------|----------------|------|---------|---------|-------|
 | Profile  | VM Driver | Runtime |       IP       | Port | Version | Status  | Nodes |
 |----------|-----------|---------|----------------|------|---------|---------|-------|
-| minikube | none      | docker  | 192.168.47.136 | 8443 | v1.21.2 | Running |     1 |
+| minikube | none      | docker  |{external VM IP}| 8443 | v1.21.2 | Running |     1 |
 |----------|-----------|---------|----------------|------|---------|---------|-------|
 
 16. Start minikube dashboard:
@@ -85,4 +85,4 @@ apache-549dff588b-pzbrb   1/1     Running   0          49m   172.17.0.8   kubern
 apache-549dff588b-v826z   1/1     Running   0          49m   172.17.0.6   kubernetes1   <none>           <none>
 apache-549dff588b-wh9lk   1/1     Running   0          51m   172.17.0.5   kubernetes1   <none>           <none>
 
-# Congrats! You have successfully deployed an Apache webserver and load balanced in on 4 nodes using kubernetes! 
+# Congrats! You have successfully deployed an Apache webserver and load balanced it on 4 nodes using kubernetes! 
