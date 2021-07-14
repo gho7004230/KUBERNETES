@@ -1,4 +1,5 @@
 # Step by step playbook to install Docker & Kubernetes on a single Ubuntu VM, then deploy Apache service & scale with load balancing
+# Additional assistance and steps can be found at: https://minikube.sigs.k8s.io/docs/
 
 1. Install Ubuntu 20.04 Desktop LTS (Minimal Install) on VMWare Workstation or Virtualbox or other Type II Hypervisor
    - For a high performance VM:
