@@ -15,7 +15,7 @@ kubectl get services my-httpd
 (expected output)
 ---------------------------------------------------------------------------
 NAME         TYPE           CLUSTER-IP     EXTERNAL-IP      PORT(S)    AGE
-my-httpd     LoadBalancer   10.3.245.137   104.198.205.71   8080/TCP   54s
+my-httpd     LoadBalancer   10.3.245.137   104.198.205.71   80/TCP   54s
 ---------------------------------------------------------------------------
 
 # Get addtional info about service:
