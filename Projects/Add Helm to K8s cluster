@@ -1,0 +1,96 @@
+# Assuming you already have minikube installed and service is running...
+0. run dashboard addon app:
+minikube dashboard
+
+1. run command to query addon database: 
+minikube addons list (find helm addon)
+
+2. run command to enable helm addon in minikube: 
+kubectl addons enable helm-tiller
+
+3. run command to install helm app: 
+snap install helm --classic
+
+4. run command to add bitnami repo:
+helm repo add bitnami https://charts.bitnami.com/bitnami
+
+5. install applications using a helm chart:
+helm install redis bitnami/redis --set serviceType=NodePort
+(note output:)
+-----------------------------------------------------------------------------------------------------------------------------------------
+NAME: redis
+LAST DEPLOYED: Wed Jul 14 21:35:20 2021
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+** Please be patient while the chart is being deployed **
+
+Redis(TM) can be accessed on the following DNS names from within your cluster:
+
+    redis-master.default.svc.cluster.local for read/write operations (port 6379)
+    redis-replicas.default.svc.cluster.local for read-only operations (port 6379)
+
+
+
+To get your password run:
+
+    export REDIS_PASSWORD=$(kubectl get secret --namespace default redis -o jsonpath="{.data.redis-password}" | base64 --decode)
+
+To connect to your Redis(TM) server:
+
+1. Run a Redis(TM) pod that you can use as a client:
+
+   kubectl run --namespace default redis-client --restart='Never'  --env REDIS_PASSWORD=$REDIS_PASSWORD  --image docker.io/bitnami/redis:6.2.4-debian-10-r13 --command -- sleep infinity
+
+   Use the following command to attach to the pod:
+
+   kubectl exec --tty -i redis-client \
+   --namespace default -- bash
+
+2. Connect using the Redis(TM) CLI:
+   redis-cli -h redis-master -a $REDIS_PASSWORD
+   redis-cli -h redis-replicas -a $REDIS_PASSWORD
+
+To connect to your database from outside the cluster execute the following commands:
+
+kubectl port-forward --namespace default svc/redis-master 6379:6379 & redis-cli -h 127.0.0.1 -p 6379 -a $REDIS_PASSWORD
+-----------------------------------------------------------------------------------------------------------------------------------------
+    
+6. Install odoo app:
+helm install odoo bitnami/odoo --set serviceType=NodePort
+(note output:)
+-----------------------------------------------------------------------------------------------------------------------------------------
+NAME: odoo
+LAST DEPLOYED: Wed Jul 14 21:41:24 2021
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+*******************************************************************
+*** PLEASE BE PATIENT: Odoo may take a few minutes to install   ***
+*******************************************************************
+
+1. Get the Odoo URL by running:
+
+** Please ensure an external IP is associated to the odoo service before proceeding **
+** Watch the status using: kubectl get svc --namespace default -w odoo **
+
+  export SERVICE_IP=$(kubectl get svc --namespace default odoo --template "{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}")
+  echo "Odoo URL: http://$SERVICE_IP/"
+
+2. Obtain the login credentials
+
+  export ODOO_EMAIL=user@example.com
+  export ODOO_PASSWORD=$(kubectl get secret --namespace "default" odoo -o jsonpath="{.data.odoo-password}" | base64 --decode)
+
+  echo Email   : $ODOO_EMAIL
+  echo Password: $ODOO_PASSWORD
+  -----------------------------------------------------------------------------------------------------------------------------------------
+7. Install wordpress:
+helm install wordpress bitnami/wordpress --set mariadb.image=bitnami/mariadb:10.1.21-r0 --set serviceType=NodePort
+
+8. Run the proxy:
+kubectl proxy
