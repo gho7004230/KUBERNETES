@@ -67,7 +67,7 @@ sudo minukube dashboard
 sudo kubectl create deployment apache --image=docker.io/gho7004230/centos-webserver:v1
 
 18. Create service:
-sudo kubectl expose deployment/apache --port=80 --external-ip=192.168.47.136 --type="LoadBalancer"
+sudo kubectl expose deployment/apache --port=80 --external-ip=192.168.47.136 --type="NodePort"
 
 19. Verify service:
 sudo kubectl get services
