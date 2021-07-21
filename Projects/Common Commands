@@ -1,4 +1,6 @@
-# Source URL: https://kubernetes.io/docs/reference/kubectl/cheatsheet/
+# Source URLs: 
+https://kubernetes.io/docs/reference/kubectl/cheatsheet/
+https://kubernetes.io/docs/reference/generated/kubectl/kubectl-commands
 
 # Kubectl: Command line tool to control cluster.  Addtional capabilities include:
 --Deploy
