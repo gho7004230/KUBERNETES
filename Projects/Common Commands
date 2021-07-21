@@ -1,0 +1,70 @@
+# Source URL: https://kubernetes.io/docs/reference/kubectl/cheatsheet/
+
+# Kubectl: Command line tool to control cluster.  Addtional capabilities include:
+--Deploy
+--Inspect
+--Edit
+--Debug
+--Log Review
+----------------------------------------------------------------------------------
+Commands:
+
+# Show Kubeconfig Settings:
+kubectl config view
+kubectl config view -o jsonpath='{.users[*].name}' (displays list of users)
+
+# Show all contexts:
+kubectl config get-contexts
+kubectl config current-contexts (shows current context only)
+
+# Configure deefault context to custom cluster name:
+kubectl config use-context {cluster-name}
+
+# Add a new basic user:
+kubectl config set-credentials kubeuser/foo.kubernetes.com --username={user} --password={password}
+
+# Delete a user:
+kubectl config unset users.{user}
+
+# Set Namespace for allkubectl commands in that context:
+kubectl config set-context --current --namespace={namespace}
+
+# Create resources from a yaml file:
+kubectl apply -f ./{manifest.yaml} 
+
+# Create from multiple files:
+kubectl apply -f ./{my1.yaml} -f ./{my2.yaml}
+
+# Create from all files in a directory:
+kubectl apply -f ./{dir}
+
+# Create from a url (git)
+kubectl apply -f https://git.io/{url}
+
+# Create a single deployment:
+kubectl create deployment nginx --image=docker.io/nginx:v1
+
+# Create a single job using a hello world container:
+kubectl create job hello --image=docker.io/busybox -- echo "Hello World"
+
+# Create a cron job that prints hello world every minute from a container:
+kubectl create cronjob hello --image=docker.io/busybox   --schedule="*/1 * * * *" -- echo "Hello World" 
+
+# Get Pod details:
+kubectl explain pods
+
+# Show nodes:
+kubectl get nodes
+
+# Show pods:
+kubectl get pods
+kubectl get pods -A (shows all pods)
+
+# Show Services and ports
+kubectl get services
+kubectl get svc
+
+# Deploy a pod using a Yaml file
+kubectl apply -f {yml file}
+
+#...see more at Kubernetes url at top of page.
