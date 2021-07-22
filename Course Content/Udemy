@@ -92,17 +92,21 @@ kubectl exec -it  my-mongodb  --bin/bash                            - takes you 
 kubectl delete deployment my-mongodb                                - Terminates Deployment, Replicas and Pod
 kubectl apply -f {location of yaml file}                            - Config file of a deployment
 ----------------------------------------
+
 nginx deployment file: my-nginx.yml
-----------------------------------------
+------------------------------------------------------
+
 # Nginx Deployment file for Kubernetes
 ---
 apiVersion: apps/v1
 kind: Deployment
+# Part 1: Metadata Portion of config file
 metadata:
   name: my-nginx
+  # Labels connect Deployments to Pods
   labels:
     apps: nginx
-# specification for the Deployment
+# Part 2: Specification for the Deployment
 spec: 
   replicas: 1
   selector:
@@ -112,13 +116,17 @@ spec:
     metadata:
       labels:
         app: nginx
- # specification for the Pod
+ # Part 3: Specification for the Pod
     spec:
       containers:
       - name: nginx
       image: docker.io/nginx:v1
       ports:
-      - containerPort: 80
+      # matches with the service target port & forwards requests from the external service port
+      - containerPort: 8080
 ...
--------------------------------------EOF
+
+------------------------------------------------------EOF
+
 # NOTE: Changes to the config.yml will trigger a change to the deployment after you save the file and run the command: kubectl apply -f {file.yml}
+kubectl get deployment my-nginx -o yaml                                 - checks deployment from the etcd component and renders it in yaml format
