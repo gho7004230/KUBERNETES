@@ -1,0 +1,124 @@
+# Sourced from: https://www.youtube.com/watch?v=X48VuDVv0do
+
+# Basic Cluster Components:
+--Worker Node
+-------------------
+Processes:
+Container Runtime (Docker)
+Kublet
+Kube Proxy
+Services
+-------------------
+---Pod (container):
+   Smallest unit on k8s
+   Abstraction over a container
+   Usually only 1 app per Pod
+   Each Pod gets its own IP address (Internal)
+   If a Pod dies, a new one will spin up and get a new IP address
+---Service:
+   Permanent IP address
+   Services and Pods are not connected
+   Services are externally accessed
+   "Ingress" forwards external request to service
+---ConfigMap
+   Configuration data of the app (External)
+   Should not contain creds
+---Secret:
+   Encrypted form of ConfigMap
+   Can contain creds
+   Base 64 encoded
+---Volumes:
+   Container Based Data Storage
+   Attaches physical storage to a Pod (local or remote)
+---Deployment:
+   Blueprint for app pods
+   Can specify replicas (live clones that share the service)
+   Abstracts Pods
+   NOTE: Databases cannot be replicated!
+   Databases can be cloned as a "StatefulSet" instread of a Deployment
+   StatefulSets syncs databases so there is no inconsistencies in DB data
+   NOTE: DBs are often managed outside of K8s!
+----------------------------------------------------------------------------
+--Master Node
+-------------------
+Processes:
+API Server
+Scheduler
+Controller Manager
+etcd
+-------------------
+Setup:
+2 - Master Nodes
+3 - Worker Nodes
+
+- Master Nodes require less resourses while worker nodes will require more
+- Install Bare Metal/VM Server, Install Master/WOrker node processes, Add to cluster
+
+----------------------------------------------------------------------------
+Using Minikube:
+-------------------
+- Master & Worker nodes are all in Docker containers on 1 virtual machine
+- Ideal for development & testing but not for production
+-------------------
+kubectl command line tool:
+- interacts with the API Server
+- Works with any K8s setup (on prem or cloud)
+-------------------
+Install & Setup:
+On a hypervisor:
+- Install Ubuntu Server
+- Install Docker.io
+- Enable & start Docker
+- Install minikube
+- Create cluster:
+minikube start         (opt)--vm-driver=virtualbox
+minikube status        - gets cluster status
+kubectl version        - checks version
+-------------------
+kubectl get nodes      - checks nodes status
+kubectl get pods       - checks status of pods
+kubectl get services   - checks services (default is Kubernetes service)
+-------------------
+kubectl create deployment my-nginx --image=docker.io/nginx:v1       - creates a new deployment using the nginx image from docker hub
+kubectl get deployments                                             - shows new deployment
+kubectl get pod                                                     - shows new pod based on new deployment (nginx)
+kubectl get replicaset                                              - shows number of replicas associated with deployment of nginx
+kubectl edit deployment my-nginx                                    - Autogenerates configuration of the new deployment with all default values that can be edited in vim
+--NOTE: any change to the deployment config file will trigger k8s to create a new deployment based on the change and terminate the exisitng deployment simultaneously
+kubectl get pod  (check status of changed deployment of nginx)
+kubectl create deployment my-mongodb --image=docker.io/mongodb:v1   - creates a new deployment of mongodb
+kubectl logs my-mongodb                                             - outputs log of mongodb deployment; gopod for troublshooting deployments
+kubectl exec -it  my-mongodb  --bin/bash                            - takes you into an interactive terminal of the mongodb container
+kubectl delete deployment my-mongodb                                - Terminates Deployment, Replicas and Pod
+kubectl apply -f {location of yaml file}                            - Config file of a deployment
+----------------------------------------
+nginx deployment file: my-nginx.yml
+----------------------------------------
+# Nginx Deployment file for Kubernetes
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-nginx
+  labels:
+    apps: nginx
+# specification for the Deployment
+spec: 
+  replicas: 1
+  selector:
+    matchlabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+ # specification for the Pod
+    spec:
+      containers:
+      - name: nginx
+      image: docker.io/nginx:v1
+      ports:
+      - containerPort: 80
+...
+-------------------------------------EOF
+# NOTE: Changes to the config.yml will trigger a change to the deployment after you save the file and run the command: kubectl apply -f {file.yml}
