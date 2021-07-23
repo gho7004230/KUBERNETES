@@ -122,11 +122,236 @@ spec:
       - name: nginx
       image: docker.io/nginx:v1
       ports:
-      # matches with the service target port & forwards requests from the external service port
+      # matches with the target port & forwards requests from the external service port
       - containerPort: 8080
 ...
 
 ------------------------------------------------------EOF
 
 # NOTE: Changes to the config.yml will trigger a change to the deployment after you save the file and run the command: kubectl apply -f {file.yml}
-kubectl get deployment my-nginx -o yaml                                 - checks deployment from the etcd component and renders it in yaml format
+kubectl get deployment my-nginx -o yaml                                - checks deployment from the etcd component and renders it in yaml format
+
+
+Exercise: Deploy MongoDB & MongoExpress apps:
+-----------------------------------------------------
+Workflow:
+Browser--->MongoExpress Service--->MongoExpress Pod--->Mongo DB Internal Service--->Momgo DB Pod--->Secret (DB Username/Password)
+
+# Verify Cluster is running:
+kubectl get all
+
+1.                # Create a base64 username and password:
+echo -n 'rootuser' | base64         # copy {base64 output}
+echo -n 'rootpassword' | base64     # copy {base64 output}
+
+2.                                # Create MongoDB Secret:
+vi mongodb-secret.yml
+------------------------------------------------------
+
+# Secret for mongodb
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb-secret
+type: Opaque
+data:
+    username:  {base64 output}
+    password:  {base64 output}
+...
+
+------------------------------------------------------EOF
+
+3.                                        # Deploy Secret:
+# Verify file location:
+cd k8-configuration
+ls  # verify files including mongodb-secret.yml
+apply -f mongodb-secret.yml
+
+# Verify secret deployment:
+kubectl get secret
+
+4.                            # Create MongoDB Deployment:
+vi mongodb-deployment.yml
+------------------------------------------------------
+
+# Mongo DB Deployment Config for Kubernetes
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb-deployment
+  labels:
+    apps: mongodb
+spec: 
+  replicas: 1
+  selector:
+    matchlabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+      - name: mongodb
+      image: docker.io/mongo:v1
+      ports:
+      # Get data about mongo ports and environtal veriables from Docker Hub
+      - containerPort: 27017
+      env:
+      - name: MONGO_INTIDB_ROOT_USERNAME
+        valueFrom:  # info will be stored in a secret file
+          secretKeyRef:
+            name: mongodb-secret
+            key: username
+      - name: MONGO_INTIDB_ROOT_PASSWORD
+        valueFrom:  # info will be stored in a secret file
+          secretKeyRef:
+            name: mongodb-secret
+            key: password
+
+# Add an external service for mongodb deployment
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-service
+spec:
+  selector:
+    app: mongodb
+  ports:
+    - protocol: TCP
+    port: 27017
+    TargetPort: 27017
+...
+
+------------------------------------------------------EOF
+
+5.                            # Deploy mongodb deploymenet:
+kubectl apply -f mongodb-deployment.yml
+kubectl get all   # Very all deployments so far
+kubectl get service  # Output should look like the following:
+---------------------------------------------------------------------------
+NAME              TYPE        CLUSTER-IP     EXTERNAL-IP    PORT(S)     AGE
+kubernetes        ClusterIP   10.96.0.1      <none>         443/TCP     36m
+mongodb-service   ClusterIP   10.96.86.105   <none>         27017/TCP   51s
+---------------------------------------------------------------------------
+
+# Verify Pod Status:
+kubectl get pod -o wide
+kubectl describe service mongobd-service 
+
+6. Create a configmap file to database server:
+vi mongodb-configmap.yml
+------------------------------------------------------
+
+# configmap for mongodb database
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongodb-configmap
+data:
+  database_url: mongodb-service
+...
+
+------------------------------------------------------
+
+7.                                                             # Deploy ConfigMap:
+kubectl apply -f mongodb-configmap.yml
+
+8.                                     # Create MongoExpress Deployment & Service:
+vi mongoexpress-deployment.yml
+------------------------------------------------------
+
+# Mongo Express Deployment Config for Kubernetes
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-express
+  labels:
+    apps: mongo-express
+spec: 
+  replicas: 1
+  selector:
+    matchlabels:
+      app: mongo-express
+  template:
+    metadata:
+      labels:
+        app: mongo-express
+    spec:
+      containers:
+      - name: mongo-express
+      image: docker.io/mongo-express:v1
+      ports:
+      # Get data about mongo ports and environtal veriables from Docker Hub
+      - containerPort: 8081
+      env:
+      - name: ME_CONFIG_MONGODB_ADMINUSERNAME
+        valueFrom:  # info will be stored in a secret file
+          secretKeyRef:
+            name: mongodb-secret
+            key: username
+      - name: ME_CONFIG_MONGODB_ADMINPASSWORD
+        valueFrom:  # info will be stored in a secret file
+          secretKeyRef:
+            name: mongodb-secret
+            key: password 
+      - name: ME_CONFIG_MONGODB_SERVER
+        valueFrom: # Value stored in a ConfigMap file
+          configMapKeyRef:
+            name: mongodb-configmap
+            key: database_url
+
+# Add an external service for mongoexpress deployment
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-express-service
+spec:
+  selector:
+    app: mongo-express
+  # Set the type to a load balancer that will assign an external IP address and will bind it to a port
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+    port: 8081
+    TargetPort: 8081
+    # Bind external port range to an external IP
+    NodePort: 30000
+...
+------------------------------------------------------EOF
+
+9.                                      # Deploy mongo-express deploymeny & service:
+kubectl apply -f mongoexpress-deployment.yml
+
+10.                                                             # Verify Deployment:
+kubectl get all
+kubectl get deployments
+kubectl get pod
+kubectl get service
+kubectl logs  # Expected output:
+----------------------------------------------------------------------------------------
+Mongo Express server listening at http://0.0.0.0:8081
+...
+Database connected
+Admin Database connected
+----------------------------------------------------------------------------------------
+
+11. Assogn external service to public IP & port:
+minikube service mongo-express-service  # expected output:
+|---------|-------------------------|-------------|------------------------------|
+|NAMESPACE|          NAME           | TARGET PORT |               URL            |
+|---------|-------------------------|-------------|------------------------------|
+| default |  mongo-express-service  |             |  http://192.168.64.5:30000   |
+|---------|-------------------------|-------------|------------------------------|
+Opening service default/mongo-express-service in default browser... (service should render in your web browser)
+
+**************EXERCISE COMPLETE****************
+
+
+
