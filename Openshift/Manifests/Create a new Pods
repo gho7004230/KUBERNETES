@@ -1,0 +1,82 @@
+# Using Openshift Client:
+
+1. Start a new project:
+oc new-project glennsproj-1
+
+2. Create a manifest that specifies 2 conatainers:
+cat > pod-multi-container.yaml <<EOF
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-two-container-pod
+  namespace: glennsproj-1
+  labels:
+    environment: dev
+spec:
+  containers:
+    - name: server
+      image: nginx:1.13-alpine
+      ports:
+        - containerPort: 80
+          protocol: TCP
+    - name: side-car
+      image: alpine:latest
+      command: ["/usr/bin/tail", "-f", "/dev/null"]
+  restartPolicy: Never
+  EOF
+  
+ 3. Create the pod by specifying the manifest:
+ oc create -f pod-multi-container.yaml
+ 
+ 4. View the detail for the pod and look at the events:
+ oc describe pod my-two-container-pod
+ 
+ 5. Execute a shell session inside the server container by using the -c flag:
+ oc exec -it my-two-container-pod -c server -- /bin/sh
+ ls
+ pwd
+ exit
+ 
+ 6. Execute a shell session inside the side-car container:
+ oc exec -it my-two-container-pod -c side-car -- /bin/sh
+ ip addr
+ netstat
+ hostname
+ exit
+ --------------------------------------------------------------------------------
+ Basic Operations:
+ oc api-versions        # available k8s API versions
+ oc get pods --v=8      # see requests/responses against the k8s API
+ oc proxy --port=8001   # proxy local requests on port 8001 to the API
+ 
+# Look at OpenAPI definition file:
+oc proxy --port=8001
+curl -X GET http://localhost:8001/openapi/v2
+ 
+# List all pods in the environment:
+curl -X GET http://localhost:8001/openapi/v1/pods
+ 
+# Same request but list in a JSON response:
+curl -X GET http://localhost:8001/openapi/v1/pods | jq.items[].metadata.name
+ 
+# List all pods in a namespace:
+curl -X GET http://localhost:8001/openapi/v1/namespaces/glennsproj-1/pods
+
+# Export the manifest of the project pod to a json file:
+oc get pods my-two-container-pod --export -o json > pod-manifest.json
+ 
+# replace the alpine version in the manifest json file from 1.13 to 1.14 using the CLI:
+sed -i 's|nginx:1.13-alpine|nginx:1.14-alpine|g' pod-manifest.json
+
+# update the running manifest with the updated json manifest file:
+curl -X PUT http://localhost:8001/api/v1/namespaces/glennsproj-1/pods/my-two-container-pod -H "Content-type: application/json" -d @pod-manifest.json
+
+# Patch the pod with the new alpine container image:
+curl -X PATCH http://localhost:8001/api/v1/namespaces/glennsproj-1/pods/my-two-container-pod -H "Content-type: application/strategic-merge-patch+json" -d '{"spec":{"containers":[{"name": "server","image":"nginx:1.15-alpine"}]}}'
+
+# Terminate current pod:
+curl -X DELETE http://localhost:8001/api/v1/namespaces/glennsproj-1/pods/my-two-container-pod
+
+# Verify:
+oc get pods
+curl -X GET http://localhost:8001/api/v1/namespaces/glennsproj-1/pods/my-two-container-pod
