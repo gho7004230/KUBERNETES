@@ -354,4 +354,42 @@ Opening service default/mongo-express-service in default browser... (service sho
 **************EXERCISE COMPLETE****************
 
 
+Namespaces:
+-----------------------------------------------------
+# Virtual cluster inside of a k8s cluster
+# Can be used to group resources (dev, test, prod, etc...)
+# Good for security (can have a monitoring namespace)
+# Namespaces are kind of like zones in a cloud
+# There are 4 default namespaces:
+--kube-system
+----for system use only
+--kube-public
+----publically accessible data w/out authentication
+--kube-node-lease
+----info about nodes & heartbeat info
+--default
+----used by user to create new resurces
+
+# Create a new namespace:
+kubectl create namespace glennsweb
+kubectl get namespaces
+
+# Create a namespace using a config file:
+vi glennsweb-namespace.yml
+--------------------------------------------------------
+
+# Namespace config file for Kubernetes
+---
+apiversion: v1
+kind: ConfigMap
+matadata:
+  name: glennsweb-configmap
+  namespace: glennsweb
+data:
+  db_url: mysql-service.database
+...
+
+--------------------------------------------------------
+  
+
 
